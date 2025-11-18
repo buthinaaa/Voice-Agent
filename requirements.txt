@@ -1,0 +1,4 @@
+livekit-agents
+python-dotenv
+chromadb
+sentence-transformers

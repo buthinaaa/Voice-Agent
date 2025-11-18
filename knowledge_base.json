@@ -1,0 +1,126 @@
+[
+  {
+    "question": "What is the name of the company?",
+    "answer": "The company is called NexaMind Labs."
+  },
+  {
+    "question": "What does NexaMind Labs do?",
+    "answer": "NexaMind Labs builds AI-driven software products including conversational agents, retrieval-augmented generation systems, custom machine learning models, and developer tools for enterprise AI integration."
+  },
+  {
+    "question": "What core products does NexaMind Labs offer?",
+    "answer": "Core products include Nexus Chat, Atlas RAG, Forge ML, and InsightHub for conversational AI, retrieval, model customization, and analytics."
+  },
+  {
+    "question": "Who are your typical customers?",
+    "answer": "Our customers are SMEs and enterprises in finance, healthcare, e-commerce, and education that need smart assistants and automated knowledge workflows."
+  },
+  {
+    "question": "Do you provide on-premises deployment?",
+    "answer": "Yes, we offer cloud, hybrid, and fully on-premises deployment options depending on customer security needs."
+  },
+  {
+    "question": "What integrations are available out-of-the-box?",
+    "answer": "Integrations include Slack, Microsoft Teams, Zendesk, Salesforce, Google Drive, SharePoint, and APIs for custom systems."
+  },
+  {
+    "question": "How does Atlas RAG work?",
+    "answer": "Atlas RAG indexes documents using embeddings, stores them in a vector database, retrieves relevant context, and augments model responses for accuracy."
+  },
+  {
+    "question": "Which vector databases do you support?",
+    "answer": "Supported vector databases include FAISS, Chroma, Milvus, and Pinecone."
+  },
+  {
+    "question": "How do you handle data privacy?",
+    "answer": "We provide encryption, role-based access, data residency controls, and options to disable data retention."
+  },
+  {
+    "question": "Can I bring my own model?",
+    "answer": "Yes, customers can bring hosted models or local GGUF/ONNX models using our model adapter."
+  },
+  {
+    "question": "Do you train models on customer data?",
+    "answer": "Only with explicit consent. Training environments are isolated and fully controlled by the customer."
+  },
+  {
+    "question": "How do you secure access to the API?",
+    "answer": "Access is secured using OAuth 2.0, API keys, rate limits, IP allowlists, and optional private networking."
+  },
+  {
+    "question": "What languages are supported?",
+    "answer": "We support English and provide multilingual capabilities including Arabic, Spanish, French, German, and Chinese."
+  },
+  {
+    "question": "Is there a free trial?",
+    "answer": "Yes, we offer a 14-day trial with full access to core features and limited usage."
+  },
+  {
+    "question": "What pricing plans do you offer?",
+    "answer": "Plans include Starter, Growth, and Enterprise with usage-based billing and feature-based subscriptions."
+  },
+  {
+    "question": "Do you offer SLAs for uptime and latency?",
+    "answer": "Enterprise plans include a 99.9% uptime SLA and negotiated latency targets."
+  },
+  {
+    "question": "How does the support process work?",
+    "answer": "Support levels include Community, Standard, and Premium with options for 24/7 assistance."
+  },
+  {
+    "question": "What is the onboarding timeline?",
+    "answer": "Onboarding typically takes 1–4 weeks depending on integration and data ingestion requirements."
+  },
+  {
+    "question": "How do I add my documents to Atlas RAG?",
+    "answer": "Upload PDFs, DOCX, HTML, or sync cloud storage; the system preprocesses and indexes documents automatically."
+  },
+  {
+    "question": "How often can the knowledge base be updated?",
+    "answer": "Updates can occur on a schedule or on-demand via the API, with incremental indexing for low latency."
+  },
+  {
+    "question": "Can NexaMind handle regulated data?",
+    "answer": "Yes, we support HIPAA-ready and SOC2-compliant deployments with full audit logging."
+  },
+  {
+    "question": "What monitoring and observability do you provide?",
+    "answer": "InsightHub provides dashboards, latency metrics, retriever performance tracking, and alerting integrations."
+  },
+  {
+    "question": "How do you measure RAG relevance and hallucination?",
+    "answer": "We provide retrieval recall scores, source attribution, confidence levels, and retriever threshold tuning tools."
+  },
+  {
+    "question": "Do you provide an SDK?",
+    "answer": "Yes, SDKs are available for JavaScript, Python, and Java along with sample applications."
+  },
+  {
+    "question": "Can I customize the assistant’s personality?",
+    "answer": "Yes, customers can modify tone, persona, greetings, and fallback behaviors via UI or API."
+  },
+  {
+    "question": "What logging and audit features exist?",
+    "answer": "Logs include queries, responses, retriever hits, admin actions, and export options with redaction."
+  },
+  {
+    "question": "How do you handle model updates?",
+    "answer": "Updates are rolled out in staged environments with the option to lock model versions for stability."
+  },
+  {
+    "question": "Is there an SLA for data deletion?",
+    "answer": "Enterprise contracts include defined deletion timelines and verifiable deletion records."
+  },
+  {
+    "question": "What are common use cases?",
+    "answer": "Use cases include customer support automation, internal knowledge assistants, contract analysis, and document summarization."
+  },
+  {
+    "question": "How do refunds or cancellations work?",
+    "answer": "Monthly plans can cancel anytime; annual plans follow prorated refund policies."
+  },
+  {
+    "question": "How do I contact sales or get started?",
+    "answer": "You can reach us at sales@nexamindlabs.example or sign up for a free trial on the site."
+  }
+]
