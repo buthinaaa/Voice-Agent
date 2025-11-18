@@ -14,33 +14,29 @@ from rag_system import SimpleRAG
 
 load_dotenv(".env.local")
 
-# Initialize RAG system (only once at startup)
-print("🚀 Initializing RAG system...")
+# Initialize RAG system once at startup
+print("Initializing RAG system...")
 rag = SimpleRAG(
     knowledge_base_path="knowledge_base.json",
     index_path="data",
-    embedding_model="all-MiniLM-L6-v2"
+    embedding_model="all-MiniLM-L6-v2",
+    score_threshold=0.3
 )
-print("✅ RAG system ready!")
-print(f"📊 Stats: {rag.get_index_stats()}")
+print("RAG system ready!")
+print(f"Stats: {rag.get_index_stats()}")
 
 
 class RagAssistant(Agent):
-    """NexaMind Labs Assistant with RAG using on_user_turn_completed"""
+    """NexaMind Labs Assistant with RAG integration"""
     
     def __init__(self) -> None:
         super().__init__(
             instructions="""You are a helpful voice assistant for NexaMind Labs.
 
-You have access to detailed information about:
-- Company information and products
-- Services and capabilities  
-- Pricing and plans
-- Integrations and technical details
-- Policies and procedures
+When provided with context from the knowledge base, use it to answer accurately.
+If no relevant context is provided, respond naturally and apologize for that you do not have info about it.
 
-When answering questions about NexaMind Labs, use the context provided to you.
-Be conversational, friendly, and concise. Keep responses brief and natural for voice."""
+Be conversational, friendly, and concise. Keep responses brief and natural for voice conversation."""
         )
     
     async def on_user_turn_completed(
@@ -49,56 +45,50 @@ Be conversational, friendly, and concise. Keep responses brief and natural for v
         new_message: ChatMessage
     ) -> None:
         """
-        Called after user finishes speaking.
-        This is where we inject RAG context BEFORE the LLM generates a response.
+        Intercept user message and inject RAG context before LLM generates response.
         """
-        # Get the user's message text
         user_text = new_message.text_content
         
-        print(f"🔍 User said: '{user_text}'")
+        print(f"User query: '{user_text}'")
         
-        # Check if this is a company-related question
-        company_keywords = [
-            'nexamind', 'company', 'product', 'service', 'pricing', 'price',
-            'integration', 'trial', 'support', 'policy', 'do you', 'what is',
-            'how do', 'can you', 'what are', 'tell me about'
-        ]
+        # Always search RAG - let score threshold filter relevance
+        results = rag.search(user_text, top_k=3)
         
-        is_company_question = any(
-            keyword in user_text.lower() 
-            for keyword in company_keywords
-        )
-        
-        if is_company_question:
-            # Search the knowledge base
-            print(f"🔍 Searching RAG for: '{user_text}'")
-            results = rag.search(user_text, top_k=2)
+        if results:
+            # Build context from top results
+            context_parts = [
+                "Reference information from NexaMind Labs knowledge base:",
+                ""
+            ]
             
-            if results:
-                # Build context from results
-                context = "\n\nRelevant information from NexaMind Labs knowledge base:\n"
-                for i, result in enumerate(results, 1):
-                    context += f"\n{i}. {result['answer']}"
-                
-                # Inject context into the conversation
-                turn_ctx.add_message(
-                    role="assistant",
-                    content=context
-                )
-                
-                print(f"📚 Added RAG context (top score: {results[0]['score']:.3f})")
-            else:
-                print("⚠️ No relevant RAG results found")
+            for i, result in enumerate(results, 1):
+                context_parts.append(f"{i}. {result['answer']}")
+            
+            context = "\n".join(context_parts)
+            
+            # Inject context as system-level instruction
+            turn_ctx.add_message(
+                role="user",
+                content=f"[Context for this question]\n{context}\n\n[User Question]\n{user_text}"
+            )
+            
+            print(f"RAG: Added {len(results)} results (best score: {results[0]['score']:.3f})")
+        else:
+            # No relevant context found - inform the model
+            turn_ctx.add_message(
+                role="user",
+                content=f"[No relevant context found in knowledge base]\n\n[User Question]\n{user_text}"
+            )
+            print("RAG: No relevant results found")
 
 
 server = AgentServer()
 
 @server.rtc_session()
 async def my_agent(ctx: agents.JobContext):
-    # Create assistant
     assistant = RagAssistant()
     
-    # Create session
+    # Create session with STT -> LLM -> TTS pipeline
     session = AgentSession(
         stt="deepgram/nova-3:en",
         llm="google/gemini-2.5-flash-lite",
@@ -107,7 +97,7 @@ async def my_agent(ctx: agents.JobContext):
         turn_detection=MultilingualModel(),
     )
 
-    # Start session
+    # Start session with noise cancellation
     await session.start(
         room=ctx.room,
         agent=assistant,

@@ -1,0 +1,6 @@
+.env.local
+pycache__/
+__pycache__/
+test.py
+data/
+KMS/
