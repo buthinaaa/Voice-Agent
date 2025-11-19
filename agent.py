@@ -1,15 +1,18 @@
 from dotenv import load_dotenv
 from livekit import agents, rtc
 from livekit.agents import (
-    AgentServer, 
-    AgentSession, 
-    Agent, 
+    AgentServer,
+    AgentSession,
+    Agent,
     room_io,
     ChatContext,
     ChatMessage,
+    function_tool,
+    RunContext,
 )
-from livekit.plugins import noise_cancellation, silero
-from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from livekit.plugins import noise_cancellation
+from livekit.plugins.google.realtime import RealtimeModel 
+
 from rag_system import SimpleRAG
 
 load_dotenv(".env.local")
@@ -27,37 +30,40 @@ print(f"Stats: {rag.get_index_stats()}")
 
 
 class RagAssistant(Agent):
-    """NexaMind Labs Assistant with RAG integration"""
+    """NexaMind Labs Assistant with RAG integration using Gemini Live API"""
     
     def __init__(self) -> None:
         super().__init__(
             instructions="""You are a helpful voice assistant for NexaMind Labs.
 
-When provided with context from the knowledge base, use it to answer accurately.
-If no relevant context is provided, respond naturally and apologize for that you do not have info about it.
+When I provide you with context from the knowledge base using the search_knowledge tool, use it to answer accurately.
+If I tell you no relevant context was found, respond naturally and apologize that you do not have info about it.
+
+IMPORTANT: When you need information about NexaMind Labs, ALWAYS call the search_knowledge tool first before answering.
 
 Be conversational, friendly, and concise. Keep responses brief and natural for voice conversation."""
         )
     
-    async def on_user_turn_completed(
-        self, 
-        turn_ctx: ChatContext, 
-        new_message: ChatMessage
-    ) -> None:
+    @function_tool
+    async def search_knowledge(self, query: str, run_ctx: RunContext) -> str:
         """
-        Intercept user message and inject RAG context before LLM generates response.
+        Search the NexaMind Labs knowledge base for information.
+        
+        Args:
+            query: The question or topic to search for in the knowledge base.
+        
+        Returns:
+            Relevant information from the knowledge base, or a message indicating no information was found.
         """
-        user_text = new_message.text_content
+        print(f"🔍 RAG Tool called with query: '{query}'")
         
-        print(f"User query: '{user_text}'")
-        
-        # Always search RAG - let score threshold filter relevance
-        results = rag.search(user_text, top_k=3)
+        # Search RAG - let score threshold filter relevance
+        results = rag.search(query, top_k=3)
         
         if results:
             # Build context from top results
             context_parts = [
-                "Reference information from NexaMind Labs knowledge base:",
+                "Here is relevant information from the NexaMind Labs knowledge base:",
                 ""
             ]
             
@@ -66,20 +72,12 @@ Be conversational, friendly, and concise. Keep responses brief and natural for v
             
             context = "\n".join(context_parts)
             
-            # Inject context as system-level instruction
-            turn_ctx.add_message(
-                role="user",
-                content=f"[Context for this question]\n{context}\n\n[User Question]\n{user_text}"
-            )
-            
-            print(f"RAG: Added {len(results)} results (best score: {results[0]['score']:.3f})")
+            print(f"✅ RAG: Found {len(results)} results (best score: {results[0]['score']:.3f})")
+            return context
         else:
-            # No relevant context found - inform the model
-            turn_ctx.add_message(
-                role="user",
-                content=f"[No relevant context found in knowledge base]\n\n[User Question]\n{user_text}"
-            )
-            print("RAG: No relevant results found")
+            # No relevant context found
+            print("❌ RAG: No relevant results found")
+            return "No relevant information found in the knowledge base for this query."
 
 
 server = AgentServer()
@@ -88,13 +86,17 @@ server = AgentServer()
 async def my_agent(ctx: agents.JobContext):
     assistant = RagAssistant()
     
-    # Create session with STT -> LLM -> TTS pipeline
+    # Create Gemini Live API realtime model
+    gemini_live = RealtimeModel(
+        model="gemini-2.0-flash-live-001", 
+        voice="Puck",
+        instructions=assistant.instructions,
+        temperature=0.8,
+    )
+    
+    # Create session with ONLY the realtime model
     session = AgentSession(
-        stt="deepgram/nova-3:en",
-        llm="google/gemini-2.5-flash-lite",
-        tts="cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
-        vad=silero.VAD.load(),
-        turn_detection=MultilingualModel(),
+        llm=gemini_live,
     )
 
     # Start session with noise cancellation
@@ -112,7 +114,7 @@ async def my_agent(ctx: agents.JobContext):
 
     # Initial greeting
     await session.generate_reply(
-        instructions="Greet the user warmly and introduce yourself as the NexaMind Labs assistant. Offer to help with questions about the company."
+        instructions="Greet the user warmly and introduce yourself as the NexaMind Labs assistant. Offer to help with questions about the company. Remember to use the search_knowledge tool when you need information."
     )
 
 
