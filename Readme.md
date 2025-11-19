@@ -1,5 +1,6 @@
 # LiveKit Voice Agent with RAG Integration
-
+### 📹 Live Demo
+[Watch the Live Demo Video here](https://drive.google.com/file/d/1ptKFeIQH-YMB-JNUzCbS82rMJiTb7QbP/view?usp=sharing)
 A real-time voice AI agent that combines **Google Gemini Live API** with **Retrieval-Augmented Generation (RAG)** using function calling to provide accurate, knowledge-grounded responses about NexaMind Labs.
 
 ## Project Overview
