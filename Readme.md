@@ -9,7 +9,7 @@ A real-time voice AI agent that combines **Google Gemini Live API** with **Retri
 This project solves a critical challenge: **integrating RAG with real-time streaming audio**. Traditional approaches require exposing intermediate text (STT → LLM → TTS), but Gemini Live API processes audio end-to-end. Our solution uses **function calling** - the AI model autonomously calls our RAG system when it needs information, achieving both real-time streaming AND accurate knowledge retrieval.
 
 ## Architecture
-
+![Alt text](diagram-export-11-19-2025-3_40_09-PM.png)
 ### System Flow
 
 ```
